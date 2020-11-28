@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <TemplateEngineVersion>5.0.1</TemplateEngineVersion>
+
+    <!--Tool info-->
+    <ToolCommandName>watch-template</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+
+    <!--NuGet info-->
+    <PackageId>watch-template</PackageId>
+    <Version>0.1.0</Version>
+    <Description>Dotnet tool to watch for file changes inside template folder and display changes inside browser in real-time.</Description>
+    <IsPackable>true</IsPackable>
+    <Authors>David Karlaš</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/DavidKarlas/WatchTemplate</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BlazorPlus" Version="1.2.46" />
+    <PackageReference Include="DiffPlex" Version="1.6.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="$(TemplateEngineVersion)" />
+    <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="$(TemplateEngineVersion)" />
+   </ItemGroup>
+</Project>

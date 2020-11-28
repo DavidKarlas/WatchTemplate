@@ -1,0 +1,26 @@
+﻿<tr>
+<td>
+    <ParameterValue ParameterName="@ParameterName" RequestData="DiffRequestData.LeftRequestData" />
+</td>
+<td style="text-align:center;">
+    <input type="checkbox" @onchange="@((e)=>OnSyncChanged(e))" checked="@(DiffRequestData.ParametersValues.TryGetValue(ParameterName, out var val) && val.Sync)" />
+</td>
+<td>
+    <ParameterValue ParameterName="@ParameterName" RequestData="DiffRequestData.RightRequestData" />
+</td>
+</tr>
+@code {
+    [Parameter]
+    public TemplateConverter.DiffRequestData DiffRequestData { get; set; }
+
+    [Parameter]
+    public string ParameterName { get; set; }
+
+
+    void OnSyncChanged(ChangeEventArgs e)
+    {
+        if (!DiffRequestData.ParametersValues.TryGetValue(ParameterName, out var val))
+            throw new Exception();
+        val.Sync = bool.Parse(e.Value.ToString());
+    }
+}

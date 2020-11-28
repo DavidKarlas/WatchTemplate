@@ -1,0 +1,74 @@
+﻿@if (RequestData.Template.Parameters.FirstOrDefault(p => p.Name == ParameterName) is Microsoft.TemplateEngine.Abstractions.ITemplateParameter parameter)
+{
+    <div style="line-height: 0.95;">
+        @parameter.Name
+        <br />
+        <small>@parameter.Documentation</small>
+    </div>
+    @if (parameter.DataType == "bool")
+    {
+        <input type="checkbox" @bind="BoolValue" />
+    }
+    else if (parameter.DataType == "choice")
+    {
+        <select @bind="Value">
+            <option></option>
+            @foreach (var item in parameter.Choices)
+            {
+                <option title="@item.Value" value="@item.Key">@item.Key</option>
+            }
+        </select>
+    }
+    else
+    {
+        <input style="width:100%;" placeholder="@parameter.DefaultValue" @bind-value="Value" @bind-value:event="oninput" />
+    }
+}
+
+@code {
+    [Parameter]
+    public TemplateConverter.RequestData RequestData { get; set; }
+
+    [Parameter]
+    public string ParameterName { get; set; }
+
+    public string Value
+    {
+        get
+        {
+            if (RequestData.All.ParametersValues.TryGetValue(ParameterName, out var val))
+                return val.GetValue(RequestData.LeftAndNotRight);
+            throw new InvalidOperationException();
+        }
+        set
+        {
+            if (RequestData.All.ParametersValues.TryGetValue(ParameterName, out var val))
+                val.SetValue(RequestData.LeftAndNotRight, value);
+            else
+                throw new InvalidOperationException();
+        }
+    }
+
+    public bool BoolValue
+    {
+        get
+        {
+            if (bool.TryParse(Value, out var result))
+                return result;
+            return false;
+        }
+        set
+        {
+            Value = value.ToString();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (RequestData.All.ParametersValues.TryGetValue(ParameterName, out var val))
+            val.ValueChanged += (v) => StateHasChanged();
+        base.OnInitialized();
+    }
+
+
+}

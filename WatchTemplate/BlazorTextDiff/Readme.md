@@ -1,0 +1,1 @@
+Copy of https://github.com/lzinga/BlazorTextDiff until new nuget is published that includes https://github.com/lzinga/BlazorTextDiff/pull/3.

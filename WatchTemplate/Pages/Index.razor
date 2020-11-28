@@ -1,0 +1,105 @@
+﻿@page "/"
+
+@using BlazorTextDiff
+@using BlazorPlus
+@using System.Reflection
+@using System.IO
+@inject TemplateConverter templateConverter
+
+<div id="container">
+    <div id="left" class="pane">
+        <BlazorTreeView Nodes="TheTreeNodes" OnIconClick="ClickMyIcon" OnNodeClick="ClickMyNode"
+                        IconCssClassExpanded="oi oi-minus" IconCssClassCollapsed="oi oi-plus" IconCssClassLeaf="oi oi-file">
+            <NodeTemplate>
+                @if (context.DateItem is Type && context.Text.StartsWith("<"))
+                {
+                    <span>
+                        [@context.Text]
+                    </span>
+                }
+                else
+                {
+                    <span>@context.Text</span>
+                }
+            </NodeTemplate>
+        </BlazorTreeView>
+    </div>
+    <div id="right" class="pane">
+        <TextDiff OldText="@(SelectedFileText(diff.DiffRequestData.LeftRequestData))"
+                  NewText="@(SelectedFileText(diff.DiffRequestData.RightRequestData))"
+                  ShowWhiteSpace="true">
+            <Header>
+                <!-- Context Variables -->
+                <!-- @context.Additions -->
+                <!-- @context.Modifications -->
+                <!-- @context.Deletions -->
+            </Header>
+        </TextDiff>
+    </div>
+</div>
+
+
+
+@code{
+    string selectedFile;
+    bool needsUpdate = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        templateConverter.FilesChanged += () =>
+        {
+            needsUpdate = true;
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        };
+    }
+
+    Diff diff;
+
+    private void EnsureDiffLoaded()
+    {
+        if (diff is null || needsUpdate)
+        {
+            diff = templateConverter.CreateDiffAsync(diff).Result;
+            needsUpdate = false;
+        }
+    }
+
+    List<BlazorTreeNode> TheTreeNodes
+    {
+        get
+        {
+            EnsureDiffLoaded();
+
+            return diff.Nodes;
+        }
+    }
+
+    void ClickMyIcon(BlazorTreeViewEventArgs tve)
+    {
+        BlazorTreeNode node = tve.TreeNode;
+        if (node.Nodes.Count != 0)
+        {
+            node.IsExpanded = !node.IsExpanded;
+        }
+    }
+    void ClickMyNode(BlazorTreeViewEventArgs tve)
+    {
+        var (p, s) = ((string, ChangeTypes))tve.TreeNode.DateItem;
+        selectedFile = p;
+        ClickMyIcon(tve);
+    }
+
+    string SelectedFileText(WatchTemplate.Services.TemplateConverter.RequestData data)
+    {
+        if (selectedFile == null)
+            return string.Empty;
+        var path = Path.Combine(data.OutputPath, selectedFile);
+        if (File.Exists(path))
+            return File.ReadAllText(path);
+        return string.Empty;
+    }
+}

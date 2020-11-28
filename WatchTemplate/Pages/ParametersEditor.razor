@@ -1,0 +1,32 @@
+﻿@page "/parameters"
+@using Microsoft.TemplateEngine.Abstractions 
+@inject WatchTemplate.Services.TemplateConverter TemplateConverter
+
+
+<div class="simple-form">
+    <table style="width:100%">
+        <tr>
+            <th>Original</th>
+            <th>Sync</th>
+            <th>Changed</th>
+        </tr>
+        @foreach (var item in Diff.DiffRequestData.GetAllParameterNames())
+        {
+            <ParameterRow ParameterName="@item" DiffRequestData="Diff.DiffRequestData" />
+        }
+    </table>
+</div>
+
+@code {
+
+    Diff Diff { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Diff = await TemplateConverter.GetLastDiffAsync();
+        
+        await base.OnInitializedAsync();
+    }
+
+
+}
